@@ -5,7 +5,7 @@
   vars:
     rh_user: "user@redhat.com"
     rh_password: "pass@redhat.com"
-    client_id: "client-id"
+    client_id: "rhsm-api"
     sso_url: "https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token"
   tasks:
     - name: Get Red Hat SSO access token
