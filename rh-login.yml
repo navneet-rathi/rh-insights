@@ -1,0 +1,32 @@
+# get_insights_token.yml
+- name: Get access token from Red Hat SSO
+  hosts: localhost
+  gather_facts: no
+  vars:
+    rh_user: "user@redhat.com"
+    rh_password: "pass@redhat.com"
+    client_id: "client-id"
+    sso_url: "https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token"
+  tasks:
+    - name: Get Red Hat SSO access token
+      uri:
+        url: "{{ sso_url }}"
+        method: POST
+        return_content: yes
+        headers:
+          Content-Type: "application/x-www-form-urlencoded"
+        body: >
+          client_id={{ client_id }}
+          &grant_type=password
+          &username={{ rh_user }}
+          &password={{ rh_password }}
+        body_format: form-urlencoded
+      register: login_response
+
+    - name: Set fact for token
+      set_fact:
+        access_token: "{{ login_response.json.access_token }}"
+
+    - name: Debug token (Optional)
+      debug:
+        msg: "Token: {{ access_token }}"
