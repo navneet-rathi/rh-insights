@@ -1,29 +1,21 @@
-# get_insights_token.yml
-- name: Get access token from Red Hat SSO
+- name: Fetch CVEs for given host
   hosts: localhost
   gather_facts: no
   vars:
-    offline_token: "Some secret"
+    access_token: "<your_token_here>"  # Or pass via set_fact from previous playbook
+    host_id: "94c98263-6f88-4949-b9b1-d7ed86599cd9"
+    cve_url: "https://console.redhat.com/api/vulnerability/v1/cves?affected_host={{ host_id }}"
   tasks:
-    - name: Get Red Hat SSO access token
+    - name: Query CVEs for the given host
       uri:
-        url: "{{ sso_url }}"
-        method: POST
-        return_content: yes
+        url: "{{ cve_url }}"
+        method: GET
         headers:
-          Content-Type: "application/x-www-form-urlencoded"
-        body: >
-          client_id={{ client_id }}
-          &grant_type=password
-          &username={{ rh_user }}
-          &password={{ rh_password }}
-        body_format: form-urlencoded
-      register: login_response
+          Authorization: "Bearer {{ access_token }}"
+          Content-Type: "application/json"
+        return_content: yes
+      register: cve_response
 
-    - name: Set fact for token
-      set_fact:
-        access_token: "{{ login_response.json.access_token }}"
-
-    - name: Debug token (Optional)
+    - name: Show CVEs
       debug:
-        msg: "Token: {{ access_token }}"
+        var: cve_response.json.data
